@@ -1,81 +1,68 @@
 #include <Arduino.h>
+#include "../lib/network/NetworkManager.h"
+#include "../lib/websocket/WebsocketManager.h"
+#include "../lib/motor/StepMotor.h"
 
-#define D0 16
-#define D1 5
-#define D2 4
-#define D5 14
-#define D6 12
-#define D7 13
-#define D8 15
+// Network credentials
+char *ssidNetwork = TOSTRING(NETWORK_SSID);
+char *passwordNetwork = TOSTRING(NETWORK_PASSWORD);
 
-// structure declaration
-struct IntervalCheck {
-    int lastTime;
-    int interval;
+// device static configuration
+char *ID = TOSTRING(DEVICE_ID);
+char *name = TOSTRING(DEVICE_NAME);
+char *type = TOSTRING(DEVICE_TYPE);
 
-    IntervalCheck(int interval) {
-        lastTime = millis();
-        this->interval = interval;
+NetworkManager networkManager;
+WebsocketManager websocketManager = WebsocketManager({ID, type, name});
+
+StepMotor stepMotor = StepMotor();
+
+void updateRotationStatus(bool s) {
+    if (s) {
+        stepMotor.startRotation();
     }
+}
 
-    bool canRun() {
-        int time = millis();
-        bool res = time - lastTime >= interval;
-        if (res) {
-            lastTime = time;
-        }
-        return res;
+void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
+
+    switch (type) {
+        case WStype_DISCONNECTED:
+            Serial.printf("[WSc] Disconnected!\n");
+            break;
+        case WStype_CONNECTED:
+            Serial.printf("[WSc] Connected to url: %s\n", payload);
+
+            // send message to server when Connected
+            websocketManager.sendCurrentStatus("", "QUERY");
+            break;
+        case WStype_TEXT:
+            Serial.printf("[WSc] get text: %s\n", payload);
+
+            // send message to server
+            // webSocket.sendTXT("message here");
+            websocketManager.messageReceived(MessageIn::parseObject(payload));
+            break;
+        case WStype_PING:
+            // pong will be sent automatically
+            Serial.printf("[WSc] get ping\n");
+            break;
+        case WStype_PONG:
+            // answer to a ping we send
+            Serial.printf("[WSc] get pong\n");
+            break;
     }
-};
-
-// variables declaration
-int state = 1;
-int pins[] = {D1, D2, D5, D6};
-bool rotateFlag = false;
-bool sensorReading = false;
-IntervalCheck *rotateInt;
-
-// function declaration
-void rotate();
-void readSensor();
+}
 
 void setup() {
     Serial.begin(9600);
-    pinMode(D0, OUTPUT);
-    pinMode(D7, INPUT);
-    for (int i = 0; i < 4; ++i) {
-        pinMode(pins[i], OUTPUT);
-    }
 
-    rotateInt = new IntervalCheck(5);
+    networkManager.connectToNetwork(ssidNetwork, passwordNetwork);
+
+    websocketManager.onUpdateStatusEvent(updateRotationStatus);
+    websocketManager.settingUpWebSocket(webSocketEvent);
 }
 
 void loop() {
-    if (rotateFlag) {
-        rotate();
-    }
-    readSensor();
-}
-
-void readSensor() {
-    bool reading = digitalRead(D7) == LOW;
-    if (reading && reading != sensorReading) {
-        rotateFlag = !rotateFlag;
-        if (!rotateFlag) {
-            for (int i = 0; i < 4; ++i) {
-                digitalWrite(pins[i], LOW);
-            }
-        }
-    }
-    sensorReading = reading;
-}
-
-void rotate() {
-    if (rotateInt->canRun()) {
-        for (int i = 0; i < 4; ++i) {
-            digitalWrite(pins[i], (state & (1 << i)) > 0 ? HIGH : LOW);
-        }
-
-        state = (((state << 1) & 16) >> 4) | ((state << 1) & 15);
-    }
+    websocketManager.loop();
+    stepMotor.loop();
 }
