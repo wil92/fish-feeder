@@ -5,11 +5,11 @@
 
 struct MessageOut {
     static void buildOutMessage(
-            const char* mid,
-            const char* messageType,
-            const char* ID,
-            const char* type,
-            const char* name,
+            const char *mid,
+            const char *messageType,
+            const char *ID,
+            const char *type,
+            const char *name,
             bool isRunning,
             char *json);
 };

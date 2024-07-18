@@ -7,7 +7,6 @@
 StepMotor::StepMotor() {
     pinMode(D0, OUTPUT);
     pinMode(MAGNETIC_SENSOR_PIN, INPUT);
-//    pinMode(D8, OUTPUT);
     for (int pin: pins) {
         pinMode(pin, OUTPUT);
     }
@@ -21,7 +20,6 @@ void StepMotor::loop() {
     if (isRunning()) {
         rotate();
     }
-//    digitalWrite(D8, isRunning() ? HIGH : LOW);
 }
 
 void StepMotor::startRotation() {
@@ -32,16 +30,6 @@ void StepMotor::startRotation() {
 
 void StepMotor::readMagneticSensor() {
     sensorReading = digitalRead(MAGNETIC_SENSOR_PIN) == LOW;
-    // todo: remove this code
-//    Serial.printf("------- Sensor: %d\n", sensorReading);
-//    digitalWrite(LED_BUILTIN, sensorReading ? HIGH : LOW);
-//    if (state == ROTATING) {
-//        Serial.printf("------- State: ROTATING\n");
-//    } else if (state == START_ROTATING) {
-//        Serial.printf("------- State: START_ROTATING\n");
-//    } else {
-//        Serial.printf("------- State: STOPPED\n");
-//    }
     if (!sensorReading && state == START_ROTATING) {
         state = ROTATING;
     }
@@ -65,6 +53,6 @@ bool StepMotor::isRunning() {
     return state == START_ROTATING || state == ROTATING;
 }
 
-void StepMotor::setSendStatusEvent(SendStatusEvent sendStatusEvent) {
-    this->sendStatusEvent = std::move(sendStatusEvent);
+void StepMotor::setSendStatusEvent(SendStatusEvent sendStatusEventMethod) {
+    this->sendStatusEvent = std::move(sendStatusEventMethod);
 }

@@ -38,7 +38,7 @@ void NetworkManager::scanNetworks() {
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
 
-    int n = WiFi.scanNetworks();
+    int n = (int) (unsigned char) WiFi.scanNetworks();
     for (int i = 0; i < n; ++i) {
         Serial.println(WiFi.SSID(i));
     }

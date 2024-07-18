@@ -9,10 +9,10 @@ char *passwordNetwork = TOSTRING(NETWORK_PASSWORD);
 // device static configuration
 char *ID = TOSTRING(DEVICE_ID);
 char *name = TOSTRING(DEVICE_NAME);
-char *type = TOSTRING(DEVICE_TYPE);
+char *deviceType = TOSTRING(DEVICE_TYPE);
 
 NetworkManager networkManager;
-WebsocketManager websocketManager = WebsocketManager({ID, type, name});
+WebsocketManager websocketManager = WebsocketManager({ID, deviceType, name});
 
 void sendStatus() {
     websocketManager.sendCurrentStatus("current_status_mid", "QUERY");
@@ -34,16 +34,17 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
             Serial.printf("[WSc] get text: %s\n", payload);
 
             // send message to server
-            // webSocket.sendTXT("message here");
             websocketManager.messageReceived(MessageIn::parseObject(payload));
             break;
         case WStype_PING:
-            // pong will be sent automatically
-            Serial.printf("[WSc] get ping\n");
-            break;
         case WStype_PONG:
-            // answer to a ping we send
-            Serial.printf("[WSc] get pong\n");
+        case WStype_ERROR:
+        case WStype_BIN:
+        case WStype_FRAGMENT_TEXT_START:
+        case WStype_FRAGMENT_BIN_START:
+        case WStype_FRAGMENT:
+        case WStype_FRAGMENT_FIN:
+        default:
             break;
     }
 }

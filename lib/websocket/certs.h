@@ -16,7 +16,7 @@ Validity
     Not After : Sep 30 18:14:03 2024 GMT
 Subject: C = US, O = Internet Security Research Group, CN = ISRG Root X1
  */
-const char home_url_CA [] PROGMEM = R"CERT(
+const char home_url_CA[] PROGMEM = R"CERT(
 -----BEGIN CERTIFICATE-----
 MIIFYDCCBEigAwIBAgIQQAF3ITfU6UK47naqPGQKtzANBgkqhkiG9w0BAQsFADA/
 MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT

@@ -16,7 +16,7 @@ void WebsocketManager::settingUpWebSocket(WebSocketsClient::WebSocketClientEvent
     const char *url = TOSTRING(URL);
 
 #if defined(WSS) && WSS == 1
-    X509List *certCA = new X509List(home_url_CA);
+    auto *certCA = new X509List(home_url_CA);
     webSocket.beginSslWithCA(host, port, url, certCA, "wss");
 #else
     webSocket.begin(host, port, url);
@@ -41,7 +41,7 @@ void WebsocketManager::messageReceived(MessageIn msg) {
     sendCurrentStatus(msg.mid, msg.payload.messageType);
 }
 
-void WebsocketManager::sendCurrentStatus(const char* mid, const char* messageType) {
+void WebsocketManager::sendCurrentStatus(const char *mid, const char *messageType) {
     char json[400];
     MessageOut::buildOutMessage(
             mid,
@@ -58,7 +58,3 @@ void WebsocketManager::loop() {
     webSocket.loop();
     stepMotor->loop();
 }
-
-//void WebsocketManager::onUpdateStatusEvent(UpdateStatusEvent updateStatusEvent) {
-//    WebsocketManager::updateStatusEvent = updateStatusEvent;
-//}

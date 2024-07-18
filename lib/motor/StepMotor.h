@@ -53,7 +53,7 @@ public:
 
     void startRotation();
 
-    void setSendStatusEvent(SendStatusEvent sendStatusEvent);
+    void setSendStatusEvent(SendStatusEvent sendStatusEventMethod);
 };
 
 #endif //FEEDER_STEPMOTOR_H

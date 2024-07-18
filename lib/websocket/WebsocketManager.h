@@ -26,12 +26,12 @@ class WebsocketManager {
 private:
     WebSocketsClient webSocket;
     UpdateStatusEvent updateStatusEvent;
-    DeviceConfig config;
+    DeviceConfig config{};
 
 public:
     std::unique_ptr<StepMotor> stepMotor;
 
-    WebsocketManager(DeviceConfig config);
+    explicit WebsocketManager(DeviceConfig config);
 
     void settingUpWebSocket(WebSocketsClient::WebSocketClientEvent webSocketClientEvent);
 
@@ -40,8 +40,6 @@ public:
     void sendCurrentStatus(const char *mid, const char *messageType);
 
     void loop();
-//
-//    void onUpdateStatusEvent(UpdateStatusEvent updateStatusEvent);
 };
 
 

@@ -7,17 +7,19 @@
 
 #include <Arduino.h>
 
+#define ull unsigned long long
+
 struct IntervalCheck {
-    int lastTime;
+    ull lastTime;
     int interval;
 
-    IntervalCheck(int interval) {
+    explicit IntervalCheck(int interval) {
         lastTime = millis();
         this->interval = interval;
     }
 
     bool canRun() {
-        int time = millis();
+        ull time = millis();
         bool res = time - lastTime >= interval;
         if (res) {
             lastTime = time;

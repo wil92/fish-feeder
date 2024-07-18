@@ -25,7 +25,7 @@ public:
 
     void createHostpot(const char *ssidNetwork, const char *passwordNetwork);
 
-    void scanNetworks();
+    static void scanNetworks();
     void loopScanNetworks();
 };
 
