@@ -12,6 +12,7 @@
 #include "certs.h"
 #include "../communication/MessageIn.h"
 #include "../communication/MessageOut.h"
+#include "../motor/StepMotor.h"
 
 typedef std::function<void(bool status)> UpdateStatusEvent;
 
@@ -26,23 +27,21 @@ private:
     WebSocketsClient webSocket;
     UpdateStatusEvent updateStatusEvent;
     DeviceConfig config;
-    bool status;
+
 public:
+    std::unique_ptr<StepMotor> stepMotor;
+
     WebsocketManager(DeviceConfig config);
 
     void settingUpWebSocket(WebSocketsClient::WebSocketClientEvent webSocketClientEvent);
-
-    void webSocketEvent(WStype_t type, uint8_t *payload, size_t length);
 
     void messageReceived(MessageIn msg);
 
     void sendCurrentStatus(const char *mid, const char *messageType);
 
     void loop();
-
-    void onUpdateStatusEvent(UpdateStatusEvent updateStatusEvent);
-
-    bool isStatus() const;
+//
+//    void onUpdateStatusEvent(UpdateStatusEvent updateStatusEvent);
 };
 
 

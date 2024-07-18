@@ -5,6 +5,8 @@
 #ifndef FEEDER_STEPMOTOR_H
 #define FEEDER_STEPMOTOR_H
 
+#include <memory>
+
 #include "IntervalCheck.h"
 
 #define D0 16
@@ -15,24 +17,43 @@
 #define D7 13
 #define D8 15
 
+#define MAGNETIC_SENSOR_PIN D7
+
+enum StepMotorState {
+    STOPPED,
+    START_ROTATING,
+    ROTATING
+};
+
+typedef std::function<void()> SendStatusEvent;
+
 class StepMotor {
 private:
     IntervalCheck *rotateInt;
-    bool rotateFlag = false;
+
+    // true if the sensor is reading a magnetic field
     bool sensorReading = false;
-    int state;
+    StepMotorState state = ROTATING;
+
     int pins[4] = {D1, D2, D5, D6};
+    int motorState = 1;
+
+    SendStatusEvent sendStatusEvent;
 
     void rotate();
 
-    void readSensor();
+    void readMagneticSensor();
 
 public:
     StepMotor();
 
     void loop();
 
+    bool isRunning();
+
     void startRotation();
+
+    void setSendStatusEvent(SendStatusEvent sendStatusEvent);
 };
 
 #endif //FEEDER_STEPMOTOR_H

@@ -10,7 +10,7 @@ void MessageOut::buildOutMessage(
         const char *ID,
         const char *type,
         const char *name,
-        bool status,
+        bool isRunning,
         char *json) {
 
     DynamicJsonDocument doc(1024);
@@ -19,7 +19,7 @@ void MessageOut::buildOutMessage(
     doc["payload"]["id"] = ID;
     doc["payload"]["type"] = type;
     doc["payload"]["name"]["name"] = name;
-    doc["payload"]["isRunning"] = status;
+    doc["payload"]["isRunning"] = isRunning;
 
     serializeJson(doc, json, 300);
 }

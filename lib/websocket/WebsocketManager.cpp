@@ -6,7 +6,7 @@
 
 WebsocketManager::WebsocketManager(DeviceConfig config) {
     WebsocketManager::config = config;
-    status = true;
+    this->stepMotor = std::make_unique<StepMotor>();
 }
 
 void WebsocketManager::settingUpWebSocket(WebSocketsClient::WebSocketClientEvent webSocketClientEvent) {
@@ -23,7 +23,7 @@ void WebsocketManager::settingUpWebSocket(WebSocketsClient::WebSocketClientEvent
 #endif
 
     // event handler
-    webSocket.onEvent(webSocketClientEvent);
+    webSocket.onEvent(std::move(webSocketClientEvent));
 
     // use HTTP Basic Authorization this is optional remove if not needed
 //    webSocket.setAuthorization("user", "Password");
@@ -34,8 +34,9 @@ void WebsocketManager::settingUpWebSocket(WebSocketsClient::WebSocketClientEvent
 
 void WebsocketManager::messageReceived(MessageIn msg) {
     if (!std::strcmp(msg.payload.messageType, "EXECUTE")) {
-        status = msg.payload.command.start;
-        updateStatusEvent(status);
+        if (msg.payload.command.start) {
+            stepMotor->startRotation();
+        }
     }
     sendCurrentStatus(msg.mid, msg.payload.messageType);
 }
@@ -48,19 +49,16 @@ void WebsocketManager::sendCurrentStatus(const char* mid, const char* messageTyp
             config.ID,
             config.type,
             config.name,
-            status,
+            stepMotor->isRunning(),
             json);
     webSocket.sendTXT(json);
 }
 
 void WebsocketManager::loop() {
     webSocket.loop();
+    stepMotor->loop();
 }
 
-void WebsocketManager::onUpdateStatusEvent(UpdateStatusEvent updateStatusEvent) {
-    WebsocketManager::updateStatusEvent = updateStatusEvent;
-}
-
-bool WebsocketManager::isStatus() const {
-    return status;
-}
+//void WebsocketManager::onUpdateStatusEvent(UpdateStatusEvent updateStatusEvent) {
+//    WebsocketManager::updateStatusEvent = updateStatusEvent;
+//}

@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "../lib/network/NetworkManager.h"
 #include "../lib/websocket/WebsocketManager.h"
-#include "../lib/motor/StepMotor.h"
 
 // Network credentials
 char *ssidNetwork = TOSTRING(NETWORK_SSID);
@@ -15,12 +14,8 @@ char *type = TOSTRING(DEVICE_TYPE);
 NetworkManager networkManager;
 WebsocketManager websocketManager = WebsocketManager({ID, type, name});
 
-StepMotor stepMotor = StepMotor();
-
-void updateRotationStatus(bool s) {
-    if (s) {
-        stepMotor.startRotation();
-    }
+void sendStatus() {
+    websocketManager.sendCurrentStatus("current_status_mid", "QUERY");
 }
 
 void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
@@ -58,11 +53,10 @@ void setup() {
 
     networkManager.connectToNetwork(ssidNetwork, passwordNetwork);
 
-    websocketManager.onUpdateStatusEvent(updateRotationStatus);
     websocketManager.settingUpWebSocket(webSocketEvent);
+    websocketManager.stepMotor->setSendStatusEvent(sendStatus);
 }
 
 void loop() {
     websocketManager.loop();
-    stepMotor.loop();
 }

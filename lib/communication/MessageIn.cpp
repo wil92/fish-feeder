@@ -25,7 +25,7 @@ MessageIn MessageIn::parseObject(unsigned char *payload) {
             messageType = doc["payload"]["messageType"];
         }
         if (doc["payload"].containsKey("command")) {
-            bool start = NULL;
+            bool start = false;
             if (doc["payload"]["command"].containsKey("start")) {
                 start = doc["payload"]["command"]["start"];
             }

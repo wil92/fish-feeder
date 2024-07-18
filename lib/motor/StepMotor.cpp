@@ -6,47 +6,65 @@
 
 StepMotor::StepMotor() {
     pinMode(D0, OUTPUT);
-    pinMode(D7, INPUT);
+    pinMode(MAGNETIC_SENSOR_PIN, INPUT);
+//    pinMode(D8, OUTPUT);
     for (int pin: pins) {
         pinMode(pin, OUTPUT);
     }
 
-    state = 1;
-    rotateFlag = false;
     sensorReading = false;
     rotateInt = new IntervalCheck(10);
 }
 
 void StepMotor::loop() {
-    if (rotateFlag) {
+    readMagneticSensor();
+    if (isRunning()) {
         rotate();
     }
-    readSensor();
+//    digitalWrite(D8, isRunning() ? HIGH : LOW);
 }
 
 void StepMotor::startRotation() {
-    sensorReading = true;
+    if (!isRunning()) {
+        state = START_ROTATING;
+    }
 }
 
-void StepMotor::readSensor() {
-    bool reading = digitalRead(D7) == LOW;
-    if (reading && reading != sensorReading) {
-        rotateFlag = !rotateFlag;
-        if (!rotateFlag) {
-            for (int pin: pins) {
-                digitalWrite(pin, LOW);
-            }
-        }
+void StepMotor::readMagneticSensor() {
+    sensorReading = digitalRead(MAGNETIC_SENSOR_PIN) == LOW;
+    // todo: remove this code
+//    Serial.printf("------- Sensor: %d\n", sensorReading);
+//    digitalWrite(LED_BUILTIN, sensorReading ? HIGH : LOW);
+//    if (state == ROTATING) {
+//        Serial.printf("------- State: ROTATING\n");
+//    } else if (state == START_ROTATING) {
+//        Serial.printf("------- State: START_ROTATING\n");
+//    } else {
+//        Serial.printf("------- State: STOPPED\n");
+//    }
+    if (!sensorReading && state == START_ROTATING) {
+        state = ROTATING;
     }
-    sensorReading = reading;
+    if (sensorReading && state == ROTATING) {
+        state = STOPPED;
+        sendStatusEvent();
+    }
 }
 
 void StepMotor::rotate() {
     if (rotateInt->canRun()) {
         for (int i = 0; i < 4; ++i) {
-            digitalWrite(pins[i], (state & (1 << i)) > 0 ? HIGH : LOW);
+            digitalWrite(pins[i], (motorState & (1 << i)) > 0 ? HIGH : LOW);
         }
 
-        state = (((state << 1) & 16) >> 4) | ((state << 1) & 15);
+        motorState = (((motorState << 1) & 16) >> 4) | ((motorState << 1) & 15);
     }
+}
+
+bool StepMotor::isRunning() {
+    return state == START_ROTATING || state == ROTATING;
+}
+
+void StepMotor::setSendStatusEvent(SendStatusEvent sendStatusEvent) {
+    this->sendStatusEvent = std::move(sendStatusEvent);
 }

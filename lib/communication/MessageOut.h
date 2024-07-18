@@ -10,7 +10,7 @@ struct MessageOut {
             const char* ID,
             const char* type,
             const char* name,
-            bool status,
+            bool isRunning,
             char *json);
 };
 

@@ -1,14 +1,16 @@
 #include <unity.h>
-#include <cstdio>
+#include <iostream>
 #include <search.h>
 #include "../lib/communication/MessageIn.h"
 #include "../lib/communication/MessageOut.h"
 
 void test_decode_message_from_json() {
     unsigned char payload[] = "{\n  \"mid\": \"LmyWgTCcZp\",\n  \"payload\": {\n    \"messageType\": \"QUERY\",\n    \"command\": {\n      \"start\": true\n    }\n  }\n}\n";
-    unsigned char *payloadBuff = &payload[0];
-    MessageIn msg = MessageIn::parseObject(payloadBuff);
+    MessageIn msg = MessageIn::parseObject(&payload[0]);
 
+    std::cout << "++++++++++++++++++++++++++++++++\n";
+    std::cout << msg.mid << '\n';
+    std::cout << "++++++++++++++++++++++++++++++++\n";
     TEST_ASSERT_EQUAL(strcmp("LmyWgTCcZp", msg.mid), 0);
     TEST_ASSERT_EQUAL(strcmp("QUERY", msg.payload.messageType), 0);
     TEST_ASSERT_TRUE(msg.payload.command.start);
