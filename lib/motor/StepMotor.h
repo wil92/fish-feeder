@@ -36,11 +36,13 @@ private:
     StepMotorState state = ROTATING;
 
     int pins[4] = {D1, D2, D5, D6};
-    int motorState = 1;
+    int motorState = 0;
 
     SendStatusEvent sendStatusEvent;
 
     void rotate();
+
+    void writeMotorState();
 
     void readMagneticSensor();
 
@@ -52,6 +54,8 @@ public:
     bool isRunning();
 
     void startRotation();
+
+    void stopRotation();
 
     void setSendStatusEvent(SendStatusEvent sendStatusEventMethod);
 };
