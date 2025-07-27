@@ -5,12 +5,12 @@
 #include "NetworkManager.h"
 
 NetworkManager::NetworkManager() {
-    local_ip = IPAddress(192, 168, 1, 1);
+    localIp = IPAddress(192, 168, 1, 1);
     gateway = IPAddress(192, 168, 1, 1);
     subnet = IPAddress(255, 255, 255, 0);
 }
 
-void NetworkManager::connectToNetwork(char *ssidNetwork, char *passwordNetwork) {
+void NetworkManager::connectToNetwork(const char *ssidNetwork, const char *passwordNetwork) {
     wiFiMulti.addAP(ssidNetwork, passwordNetwork);
     Serial.print("Connecting to ");
     Serial.print(ssidNetwork);
@@ -29,9 +29,26 @@ void NetworkManager::connectToNetwork(char *ssidNetwork, char *passwordNetwork) 
     Serial.println(WiFi.localIP());
 }
 
-void NetworkManager::createHostpot(const char *ssidNetwork, const char *passwordNetwork) {
-    WiFi.softAP(ssidNetwork, passwordNetwork);
-    WiFi.softAPConfig(local_ip, gateway, subnet);
+bool NetworkManager::createHotpot(const char *ssidNetwork, const char *passwordNetwork) const {
+    WiFi.softAPConfig(localIp, gateway, subnet);
+    int tries = 10;
+
+    Serial.println("Try to start soft AP");
+    while (!WiFi.softAP(ssidNetwork, passwordNetwork) && tries-- > 0) {
+        Serial.print(".");
+        delay(1000);
+    }
+    Serial.println("");
+
+    if (tries == 0) {
+        Serial.println("Soft AP failed");
+        return false;
+    }
+
+    Serial.println("Soft AP ready");
+    Serial.print("Local IP: ");
+    Serial.println(WiFi.softAPIP());
+    return true;
 }
 
 void NetworkManager::scanNetworks() {

@@ -14,16 +14,16 @@ class NetworkManager {
 private:
     ESP8266WiFiMulti wiFiMulti;
 
-    IPAddress local_ip;
+    IPAddress localIp;
     IPAddress gateway;
     IPAddress subnet;
 
     unsigned long lastNetworkScan = 1;
 public:
     NetworkManager();
-    void connectToNetwork(char *ssidNetwork, char *passwordNetwork);
+    void connectToNetwork(const char *ssidNetwork, const char *passwordNetwork);
 
-    void createHostpot(const char *ssidNetwork, const char *passwordNetwork);
+    bool createHotpot(const char *ssidNetwork, const char *passwordNetwork) const;
 
     static void scanNetworks();
     void loopScanNetworks();

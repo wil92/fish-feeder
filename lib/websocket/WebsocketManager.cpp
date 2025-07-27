@@ -3,58 +3,67 @@
 //
 
 #include "WebsocketManager.h"
+#include "certs.h"
+#include "MessageOut.h"
 
-WebsocketManager::WebsocketManager(DeviceConfig config) {
-    WebsocketManager::config = config;
-    this->stepMotor = std::make_unique<StepMotor>();
+bool WebsocketManager::isConnectionAlive() {
+	return millis() - lastConnection <= CONNECTION_LOST_TIMEOUT ||
+	       webSocket.isConnected();
 }
 
-void WebsocketManager::settingUpWebSocket(WebSocketsClient::WebSocketClientEvent webSocketClientEvent) {
+void WebsocketManager::settingUpWebSocket(const WebSocketsClient::WebSocketClientEvent &webSocketClientEvent,
+                                          uint16_t port,
+                                          const char *host,
+                                          const char *url) {
+	if (flashManager->isSecure) {
+		webSocket.beginSslWithCA(host, port, url, home_url_CA, "wss");
+	} else {
+		webSocket.begin(host, port, url);
+	}
 
-    uint16_t port = PORT;
-    const char *host = TOSTRING(HOST);
-    const char *url = TOSTRING(URL);
+	// event handler
+	webSocket.onEvent(webSocketClientEvent);
 
-#if defined(WSS) && WSS == 1
-    auto *certCA = new X509List(home_url_CA);
-    webSocket.beginSslWithCA(host, port, url, certCA, "wss");
-#else
-    webSocket.begin(host, port, url);
-#endif
+	// use HTTP Basic Authorization this is optional remove if not needed
+	//    webSocket.setAuthorization("user", "Password");
 
-    // event handler
-    webSocket.onEvent(std::move(webSocketClientEvent));
+	// try ever 5000 again if connection has failed
+	webSocket.setReconnectInterval(5000);
 
-    // use HTTP Basic Authorization this is optional remove if not needed
-//    webSocket.setAuthorization("user", "Password");
+	// initialize lastConnectionValue
+	lastConnection = millis();
 
-    // try ever 5000 again if connection has failed
-    webSocket.setReconnectInterval(5000);
+	// Initialize step motor
+	stepMotor = std::make_unique<StepMotor>();
 }
 
 void WebsocketManager::messageReceived(MessageIn msg) {
-    if (!std::strcmp(msg.payload.messageType, "EXECUTE")) {
-        if (msg.payload.command.start) {
-            stepMotor->startRotation();
-        }
-    }
-    sendCurrentStatus(msg.mid, msg.payload.messageType);
+	if (!std::strcmp(msg.payload.messageType, "EXECUTE")) {
+		if (msg.payload.command.start) {
+			stepMotor->startRotation();
+		}
+	}
+	sendCurrentStatus(msg.mid, msg.payload.messageType);
 }
 
 void WebsocketManager::sendCurrentStatus(const char *mid, const char *messageType) {
-    char json[400];
-    MessageOut::buildOutMessage(
-            mid,
-            messageType,
-            config.ID,
-            config.type,
-            config.name,
-            stepMotor->isRunning(),
-            json);
-    webSocket.sendTXT(json);
+	char json[400];
+	MessageOut::buildOutMessage(
+		mid,
+		messageType,
+		config.ID,
+		config.type,
+		config.name,
+		stepMotor->isRunning(),
+		json);
+	webSocket.sendTXT(json);
 }
 
 void WebsocketManager::loop() {
-    webSocket.loop();
-    stepMotor->loop();
+	if (webSocket.isConnected()) {
+		lastConnection = millis();
+	}
+
+	webSocket.loop();
+	stepMotor->loop();
 }

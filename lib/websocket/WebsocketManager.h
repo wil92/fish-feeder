@@ -5,41 +5,47 @@
 #ifndef SMART_HOME_WEBSOCKETMANAGER_H
 #define SMART_HOME_WEBSOCKETMANAGER_H
 
-#define STRINGIGY(v) #v
-#define TOSTRING(v) STRINGIGY(v)
+#define CONNECTION_LOST_TIMEOUT 60000
 
 #include <SocketIOclient.h>
-#include "certs.h"
 #include "../communication/MessageIn.h"
-#include "../communication/MessageOut.h"
+#include "../flash/FlashManager.h"
 #include "../motor/StepMotor.h"
 
 typedef std::function<void(bool status)> UpdateStatusEvent;
+typedef std::function<void(void)> ResetFunction;
 
 struct DeviceConfig {
-    const char *ID;
-    const char *type;
-    const char *name;
+	const char *ID;
+	const char *type;
+	const char *name;
 };
 
 class WebsocketManager {
-private:
-    WebSocketsClient webSocket;
-    UpdateStatusEvent updateStatusEvent;
-    DeviceConfig config{};
+	WebSocketsClient webSocket;
+	UpdateStatusEvent updateStatusEvent;
+
+	unsigned long lastConnection = 0;
 
 public:
-    std::unique_ptr<StepMotor> stepMotor;
+	FlashManager *flashManager = nullptr;
+	std::unique_ptr<WiFiServer> server;
+	ResetFunction rf;
+	std::unique_ptr<StepMotor> stepMotor;
+	DeviceConfig config{};
 
-    explicit WebsocketManager(DeviceConfig config);
+	bool isConnectionAlive();
 
-    void settingUpWebSocket(WebSocketsClient::WebSocketClientEvent webSocketClientEvent);
+	void settingUpWebSocket(const WebSocketsClient::WebSocketClientEvent &webSocketClientEvent,
+							uint16_t port,
+							const char *host,
+							const char *url);
 
-    void messageReceived(MessageIn msg);
+	void messageReceived(MessageIn msg);
 
-    void sendCurrentStatus(const char *mid, const char *messageType);
+	void sendCurrentStatus(const char *mid, const char *messageType);
 
-    void loop();
+	void loop();
 };
 
 

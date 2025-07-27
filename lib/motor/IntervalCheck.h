@@ -11,16 +11,16 @@
 
 struct IntervalCheck {
     ull lastTime;
-    int interval;
+    ull interval;
 
-    explicit IntervalCheck(int interval) {
+    explicit IntervalCheck(const int interval) {
         lastTime = millis();
-        this->interval = interval;
+        this->interval = static_cast<unsigned long long>(interval);
     }
 
     bool canRun() {
-        ull time = millis();
-        bool res = time - lastTime >= interval;
+        const ull time = millis();
+        const bool res = time - lastTime >= interval;
         if (res) {
             lastTime = time;
         }
