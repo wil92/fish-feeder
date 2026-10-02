@@ -26,7 +26,10 @@ void FlashManager::loadSetup() {
         url = loadString(&index);
         isSecure = EEPROM.read(index++);
         port = EEPROM.read(index++);
-        port |= EEPROM.read(index) << 8;
+        port |= EEPROM.read(index++) << 8;
+
+        // client token
+        clientToken = loadString(&index);
 
         // only on debug
         // Serial.println("Config from EEPROM---");
@@ -68,7 +71,10 @@ void FlashManager::saveSetup() {
     saveString(String(url), &index);
     EEPROM.write(index++, isSecure);
     EEPROM.write(index++, port & ((1 << 8) - 1));
-    EEPROM.write(index, (port >> 8) & ((1 << 8) - 1));
+    EEPROM.write(index++, (port >> 8) & ((1 << 8) - 1));
+
+    // client token
+    saveString(String(clientToken), &index);
 
     EEPROM.commit();
     Serial.println("Data saved in flash memory");
@@ -99,6 +105,8 @@ void FlashManager::setVariable(const String &key, const String &value) {
         type = value.c_str();
     } else if (key == "deviceName") {
         name = value.c_str();
+    } else if (key == "clientToken") {
+        clientToken = value.c_str();
     } else if (key == "host") {
         host = value.c_str();
     } else if (key == "secure") {

@@ -21,5 +21,5 @@ void MessageOut::buildOutMessage(
     doc["payload"]["name"]["name"] = name;
     doc["payload"]["isRunning"] = isRunning;
 
-    serializeJson(doc, json, 300);
+    serializeJson(doc, json, 400);
 }

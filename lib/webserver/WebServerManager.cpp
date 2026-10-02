@@ -3,7 +3,7 @@
 //
 
 #include "WebServerManager.h"
-#include "views/index.h"
+#include "views/server-config.index.h"
 
 
 void WebServerManager::setup() {
@@ -131,7 +131,7 @@ String WebServerManager::prepareBaseHeaders() const {
 }
 
 String WebServerManager::prepareHtmlPage() const {
-    String result = String(base_html_page) + "\r\n";
+    String result = String(server_config_index_html) + "\r\n";
 
     // Network
     result.replace("$$SSID$$", flashManager->ssidNetwork);
@@ -147,6 +147,7 @@ String WebServerManager::prepareHtmlPage() const {
     result.replace("$$DEVICE_ID$$", flashManager->ID);
     result.replace("$$DEVICE_NAME$$", flashManager->name);
     result.replace("$$DEVICE_TYPE$$", flashManager->type);
+    result.replace("$$CLIENT_TOKEN$$", flashManager->clientToken);
 
     return result;
 }

@@ -30,6 +30,9 @@ public:
 	const char *ssid = "SmartHomeDevice_FishFeeder";
 	const char *password = "smarthome";
 
+	// Client token
+	String clientToken = "client-token";
+
 	// Network
 	String ssidNetwork;
 	String passwordNetwork;
@@ -37,12 +40,12 @@ public:
 	// Server config
 	uint16_t port = 443;
 	String host;
-	String url;
+	String url = "/ws/";
 	bool isSecure = true;
 
 	// Device configuration
 	String ID = "";
-	String name = "Camera";
+	String name = "AquariumFeeder";
 	String type = "action.devices.types.PETFEEDER";
 
 	void loadSetup();

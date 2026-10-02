@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+#include "AuthMessageIn.h"
+#include "AuthMessageOut.h"
 #include "../lib/network/NetworkManager.h"
 #include "../lib/flash/FlashManager.h"
 #include "../lib/websocket/WebsocketManager.h"
@@ -26,14 +28,27 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
 		case WStype_CONNECTED:
 			Serial.printf("[WSc] Connected to url: %s\n", payload);
 
+			// send client token auth
+			websocketManager.authorized = false;
+			websocketManager.sendClientTokenAuth();
+
 			// send message to server when Connected
 			websocketManager.sendCurrentStatus("", "QUERY");
 			break;
 		case WStype_TEXT:
 			Serial.printf("[WSc] get text: %s\n", payload);
 
-			// send message to server
-			websocketManager.messageReceived(MessageIn::parseObject(payload));
+			if (!websocketManager.authorized) {
+				// check if authorized
+				if (const auto [status] = AuthMessageIn::parseObject(payload); status) {
+					websocketManager.authorized = true;
+					Serial.printf("[WSc] Authorized\n");
+				}
+			} else {
+				// send message to server
+				websocketManager.messageReceived(MessageIn::parseObject(payload));
+			}
+
 			break;
 		case WStype_PING:
 		case WStype_PONG:
@@ -76,8 +91,11 @@ void setup() {
 		websocketManager.config = {
 			flashManager.ID.c_str(),
 			flashManager.type.c_str(),
-			flashManager.name.c_str()
+			flashManager.name.c_str(),
+			flashManager.clientToken.c_str()
 		};
+		Serial.println("Configuring network");
+		Serial.println("Host: " + flashManager.host + "\nPort: " + String(flashManager.port) + "\nUrl: " + flashManager.url);
 		websocketManager.settingUpWebSocket(webSocketEvent, flashManager.port, flashManager.host.c_str(),
 		                                    flashManager.url.c_str());
 		websocketManager.stepMotor->setSendStatusEvent(sendStatus);

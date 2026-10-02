@@ -16,36 +16,40 @@ typedef std::function<void(bool status)> UpdateStatusEvent;
 typedef std::function<void(void)> ResetFunction;
 
 struct DeviceConfig {
-	const char *ID;
-	const char *type;
-	const char *name;
+    const char *ID;
+    const char *type;
+    const char *name;
+    const char *clientToken;
 };
 
 class WebsocketManager {
-	WebSocketsClient webSocket;
-	UpdateStatusEvent updateStatusEvent;
+    WebSocketsClient webSocket;
+    UpdateStatusEvent updateStatusEvent;
 
-	unsigned long lastConnection = 0;
+    unsigned long lastConnection = 0;
 
 public:
-	FlashManager *flashManager = nullptr;
-	std::unique_ptr<WiFiServer> server;
-	ResetFunction rf;
-	std::unique_ptr<StepMotor> stepMotor;
-	DeviceConfig config{};
+    FlashManager *flashManager = nullptr;
+    std::unique_ptr<WiFiServer> server;
+    ResetFunction rf;
+    std::unique_ptr<StepMotor> stepMotor;
+    DeviceConfig config{};
+    bool authorized = false;
 
-	bool isConnectionAlive();
+    bool isConnectionAlive();
 
-	void settingUpWebSocket(const WebSocketsClient::WebSocketClientEvent &webSocketClientEvent,
-							uint16_t port,
-							const char *host,
-							const char *url);
+    void settingUpWebSocket(const WebSocketsClient::WebSocketClientEvent &webSocketClientEvent,
+                            uint16_t port,
+                            const char *host,
+                            const char *url);
 
-	void messageReceived(MessageIn msg);
+    void messageReceived(MessageIn msg);
 
-	void sendCurrentStatus(const char *mid, const char *messageType);
+    void sendCurrentStatus(const char *mid, const char *messageType);
 
-	void loop();
+    void sendClientTokenAuth();
+
+    void loop();
 };
 
 
