@@ -18,15 +18,20 @@ private:
     IPAddress gateway;
     IPAddress subnet;
 
+    std::vector<String> scannedNetworks;
+
     unsigned long lastNetworkScan = 1;
+
 public:
     NetworkManager();
+
     void connectToNetwork(const char *ssidNetwork, const char *passwordNetwork);
 
     bool createHotpot(const char *ssidNetwork, const char *passwordNetwork) const;
 
-    static void scanNetworks();
-    void loopScanNetworks();
+    void scanNetworks();
+
+    [[nodiscard]] const std::vector<String> &getScannedNetworks() const;
 };
 
 

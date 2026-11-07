@@ -8,6 +8,7 @@
 #include <WiFiServer.h>
 #include <WiFiClient.h>
 #include "../flash/FlashManager.h"
+#include "../network/NetworkManager.h"
 
 #define CLIENT_TIMEOUT 2000
 
@@ -22,6 +23,10 @@ class WebServerManager {
 
     [[nodiscard]] String prepareHtmlPage() const;
 
+    [[nodiscard]] String prepareJSONHeaders(int contentLength) const;
+
+    [[nodiscard]] String prepareSSIDsJson() const;
+
     void checkForConnections();
 
     void setParameter(const String &key, const String &value) const;
@@ -30,6 +35,7 @@ class WebServerManager {
 
 public:
     FlashManager *flashManager = nullptr;
+    NetworkManager *networkManager = nullptr;
     std::unique_ptr<WiFiServer> server;
     ResetFunction rf;
 

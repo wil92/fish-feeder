@@ -85,7 +85,12 @@ bool WebServerManager::checkEndpoints(WiFiClient *client, const String &message)
         client->println(prepareBaseHeaders() + "\r\n");
         return true;
     }
-    if (message.indexOf("GET /") >= 0) {
+    if (message.indexOf("GET /refresh-ssid") >= 0) {
+        const String json = prepareSSIDsJson();
+        Serial.println("Sending JSON: " + json);
+        client->print(prepareJSONHeaders(json.length()));
+        client->print(json + "\r\n\r\n");
+    } else if (message.indexOf("GET /") >= 0) {
         client->println(prepareHeaders());
         client->println(prepareHtmlPage());
     }
@@ -130,6 +135,26 @@ String WebServerManager::prepareBaseHeaders() const {
     return String("HTTP/1.1 200 OK") + "\r\n";
 }
 
+String WebServerManager::prepareJSONHeaders(const int contentLength) const {
+    return prepareBaseHeaders() +
+           "Content-Type: application/json\r\n" +
+           "Content-Length: " + String(contentLength) + "\r\n" +
+           "Cache-Control: no-cache\r\n" +
+           "Connection: close\r\n" +
+           "\r\n";
+}
+
+String WebServerManager::prepareSSIDsJson() const {
+    networkManager->scanNetworks();
+    String ssidOptions = "[";
+    bool first = true;
+    for (const auto &ssid: networkManager->getScannedNetworks()) {
+        ssidOptions += String(first ? "" : ",") + "\"" + ssid + "\"";
+        first = false;
+    }
+    return ssidOptions + "]";
+}
+
 String WebServerManager::prepareHtmlPage() const {
     String result = String(server_config_index_html) + "\r\n";
 
@@ -148,6 +173,16 @@ String WebServerManager::prepareHtmlPage() const {
     result.replace("$$DEVICE_NAME$$", flashManager->name);
     result.replace("$$DEVICE_TYPE$$", flashManager->type);
     result.replace("$$CLIENT_TOKEN$$", flashManager->clientToken);
+
+    // SSID options
+    String ssidOptions = "";
+    for (const auto &ssid: networkManager->getScannedNetworks()) {
+        ssidOptions += ssid + ",";
+    }
+    if (!ssidOptions.isEmpty()) {
+        ssidOptions.remove(ssidOptions.length() - 1); // Remove trailing comma
+    }
+    result.replace("$$SSID_OPTIONS$$", ssidOptions);
 
     return result;
 }

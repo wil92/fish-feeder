@@ -5,7 +5,6 @@
 #include "WebsocketManager.h"
 
 #include "AuthMessageOut.h"
-#include "certs.h"
 #include "MessageOut.h"
 
 bool WebsocketManager::isConnectionAlive() {

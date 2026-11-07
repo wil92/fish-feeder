@@ -52,22 +52,19 @@ bool NetworkManager::createHotpot(const char *ssidNetwork, const char *passwordN
 }
 
 void NetworkManager::scanNetworks() {
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
+    scannedNetworks.clear();
 
-    int n = (int) (unsigned char) WiFi.scanNetworks();
+    const int n = WiFi.scanNetworks();
+
     for (int i = 0; i < n; ++i) {
-        Serial.println(WiFi.SSID(i));
+        scannedNetworks.push_back(WiFi.SSID(i));
+
+        // only on debug
+        Serial.printf("SSID: %s\n", scannedNetworks[i].c_str());
     }
+    Serial.println("Scan complete");
 }
 
-void NetworkManager::loopScanNetworks() {
-    unsigned long current = micros();
-    if ((current - lastNetworkScan) / NETWORK_SCAN_INTERVAL_IN_MICRO_SEC) {
-        lastNetworkScan = current;
-        if (lastNetworkScan) {
-            lastNetworkScan = 0;
-            scanNetworks();
-        }
-    }
+const std::vector<String> &NetworkManager::getScannedNetworks() const {
+    return scannedNetworks;
 }

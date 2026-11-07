@@ -2,79 +2,285 @@
 <html>
 <head>
     <title>Device configuration page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <style>
+        :root {
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text: #1E293B;
+            --muted: #475569;
+            --error-text: #DC2626;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --success-hover: #059669;
+        }
+
+        h2 {
+            display: inline-block;
+        }
+
+        body {
+            background: var(--bg);
+            justify-items: center;
+            color: var(--text);
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .config-container {
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border-radius: 10px;
+            border-color: var(--border);
+            padding: 10px;
+            max-width: 400px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+            .error {
+                color: var(--error-text);
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+
+            :first-child {
+                margin-top: 0;
+            }
+
+            .config-item {
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 5px;
+                position: relative;
+
+                label {
+                    margin-right: 10px;
+                    white-space: nowrap;
+                }
+
+                input {
+                    width: stretch;
+                }
+
+                ul {
+                    position: absolute;
+                    right: 0;
+                    z-index: 10000;
+                    background: var(--muted);
+                    display: inline;
+                    margin: 0;
+                    top: 100%;
+                    width: 100%;
+                    list-style: none;
+                    padding: 0;
+
+                    li {
+                        padding: 3px 10px;
+
+                        &:hover {
+                            background: var(--text);
+                            color: var(--surface);
+                            cursor: pointer;
+                        }
+                    }
+                }
+            }
+
+            .config-item-row {
+                display: flex;
+                flex-direction: row;
+            }
+
+            button {
+                width: max-content;
+                background: var(--success);
+                border: solid 1px;
+                margin-top: 20px;
+                align-self: end;
+                border-radius: 3px;
+                padding: 5px;
+
+                &:hover {
+                    background: var(--success-hover);
+                    cursor: pointer;
+                }
+            }
+        }
+
+    </style>
 </head>
 <body>
 <h1>Configuration Page</h1>
-<h2>Device configuration</h2>
-<div>
-    <label for="deviceId">ID</label>
-    <input type="text" id="deviceId" value="$$DEVICE_ID$$">
+<div class="config-container">
+    <h2>Network</h2>
+    <div class="config-item">
+        <label for="ssid">SSID</label>
+        <div style="width: 100%;position: relative;">
+            <div style="display: flex;flex-direction: row">
+                <input type="text" id="ssid" value="$$SSID$$" class="required">
+                <button style="margin: 0;height: 21px;" id="refreshSSID">&#x27F3;</button>
+            </div>
+            <ul id="ssid-options" class="hide">
+            </ul>
+        </div>
+    </div>
+    <div class="error hide" id="ssid-error"></div>
+    <div class="config-item">
+        <label for="password">Password</label>
+        <input type="text" id="password" value="$$PASSWORD$$" class="required">
+    </div>
+    <div class="error hide" id="password-error"></div>
+    <h2>Device configuration</h2>
+    <div class="config-item">
+        <label for="deviceId">ID</label>
+        <input type="text" id="deviceId" value="$$DEVICE_ID$$" class="required">
+    </div>
+    <div class="error hide" id="deviceId-error"></div>
+    <div class="config-item">
+        <label for="deviceName">Name</label>
+        <input type="text" id="deviceName" value="$$DEVICE_NAME$$" class="required">
+    </div>
+    <div class="error hide" id="deviceName-error"></div>
+    <div class="config-item">
+        <label for="deviceType">Type</label>
+        <input type="text" id="deviceType" value="$$DEVICE_TYPE$$" class="required">
+    </div>
+    <div class="error hide" id="deviceType-error"></div>
+    <div class="config-item">
+        <label for="clientToken">Client Token</label>
+        <input type="text" id="clientToken" value="$$CLIENT_TOKEN$$" class="required">
+    </div>
+    <div class="error hide" id="clientToken-error"></div>
+    <h2>Server</h2>
+    <div class="config-item">
+        <label for="host">Host</label>
+        <input type="text" id="host" value="$$HOST$$" class="required">
+    </div>
+    <div class="error hide" id="host-error"></div>
+    <div class="config-item-row">
+        <label for="secure">Enable SSL</label>
+        <input type="checkbox" id="secure" value="$$SECURE$$">
+    </div>
+    <div class="config-item">
+        <label for="port">Port</label>
+        <input type="text" id="port" value="$$PORT$$" class="required">
+    </div>
+    <div class="error hide" id="port-error"></div>
+    <div class="config-item">
+        <label for="url">Url</label>
+        <input type="text" id="url" value="$$URL$$" class="required">
+    </div>
+    <div class="error hide" id="url-error"></div>
+    <button id="summit">Configure device</button>
 </div>
-<div>
-    <label for="deviceName">Name</label>
-    <input type="text" id="deviceName" value="$$DEVICE_NAME$$">
-</div>
-<div>
-    <label for="deviceType">Type</label>
-    <input type="text" id="deviceType" value="$$DEVICE_TYPE$$">
-</div>
-<div>
-    <label for="clientToken">Client Token</label>
-    <input type="text" id="clientToken" value="$$CLIENT_TOKEN$$">
-</div>
-<h2>Network</h2>
-<div>
-    <label for="ssid">SSID</label>
-    <input type="text" id="ssid" value="$$SSID$$">
-</div>
-<div>
-    <label for="password">Password</label>
-    <input type="text" id="password" value="$$PASSWORD$$">
-</div>
-<h2>Server</h2>
-<div>
-    <label for="host">Host</label>
-    <input type="text" id="host" value="$$HOST$$">
-</div>
-<div>
-    <label for="secure">Enable SSL</label>
-    <input type="checkbox" id="secure" value="$$SECURE$$">
-</div>
-<div>
-    <label for="port">Port</label>
-    <input type="text" id="port" value="$$PORT$$">
-</div>
-<div>
-    <label for="url">Url</label>
-    <input type="text" id="url" value="$$URL$$">
-</div>
-<button id="summit" style="margin-top: 20px;">Configure device</button>
 </body>
 <script>
-    var but = document.getElementById("summit");
-    var deviceId = document.getElementById("deviceId");
-    var deviceName = document.getElementById("deviceName");
-    var deviceType = document.getElementById("deviceType");
-    var clientToken = document.getElementById("clientToken");
+    const summitButton = document.getElementById("summit");
+    const deviceId = document.getElementById("deviceId");
+    const deviceName = document.getElementById("deviceName");
+    const deviceType = document.getElementById("deviceType");
+    const clientToken = document.getElementById("clientToken");
 
-    var ssid = document.getElementById("ssid");
-    var password = document.getElementById("password");
+    const ssid = document.getElementById("ssid");
+    const password = document.getElementById("password");
 
-    var host = document.getElementById("host");
-    var secure = document.getElementById("secure");
-    var port = document.getElementById("port");
-    var url = document.getElementById("url");
+    const host = document.getElementById("host");
+    const secure = document.getElementById("secure");
+    const port = document.getElementById("port");
+    const url = document.getElementById("url");
 
-    console.log(secure.checked)
+    const ssidOptions = document.getElementById("ssid-options");
+    let possibleSSIDs = "$$SSID_OPTIONS$$".split(",");
+    const refreshSSIDButton = document.getElementById("refreshSSID");
 
-    but.onclick = function () {
-        var reqUrl = `/?deviceId=${encodeURI(deviceId.value)}&deviceName=${encodeURI(deviceName.value)}&deviceType=${encodeURI(deviceType.value)}&clientToken=${encodeURI(clientToken.value)}&ssid=${encodeURI(ssid.value)}&password=${encodeURI(password.value)}&host=${encodeURI(host.value)}&secure=${encodeURI(secure.checked)}&port=${encodeURI(port.value)}&url=${encodeURI(url.value)}`;
-        fetch(reqUrl, {method: 'post'})
-            .then(() => console.log("Device configurated"))
+    refreshSSIDButton.onclick = function () {
+        fetch('/refresh-ssid', {method: 'GET'})
+            .then(res => res.json())
+            .then((list) => possibleSSIDs = list)
             .catch(e => console.error(e));
     };
 
-    secure.onclick = function () {
+    function populateSSIDOptions(valueToFilter) {
+        ssidOptions.innerHTML = '';
+        const currentSSID = valueToFilter !== undefined ? valueToFilter : ssid.value;
+        possibleSSIDs
+            .filter(ssidOption => ssidOption.toLowerCase().includes(currentSSID.toLowerCase()))
+            .forEach(ssidOption => {
+                const li = document.createElement("li");
+                li.textContent = ssidOption;
+                li.onmousedown = () => {
+                    ssid.value = ssidOption;
+                    populateSSIDOptions('')
+                    ssidOptions.classList.add("hide");
+                };
+                ssidOptions.appendChild(li);
+            });
+    }
+
+    ssid.onfocus = function () {
+        ssidOptions.classList.remove("hide");
+    };
+    ssid.addEventListener('blur', function () {
+        ssidOptions.classList.add("hide");
+    });
+    ssid.onkeyup = function () {
+        ssidOptions.classList.remove("hide");
+        populateSSIDOptions();
+    };
+
+    function validateInputs(inputId) {
+        let validationStatus = true;
+        if (!inputId) {
+            document.querySelectorAll(".error").forEach(e => e.classList.add("hide"));
+        } else {
+            const errorElement = document.getElementById(`${inputId}-error`);
+            if (errorElement) {
+                errorElement.classList.add("hide");
+            }
+        }
+        Array.from(document.querySelectorAll("input.required"))
+            .filter(input => !inputId || input.id === inputId)
+            .forEach((input) => {
+                input.value = input.value.trim();
+                const errorElement = document.getElementById(`${input.id}-error`);
+                if (!input.value) {
+                    if (errorElement) {
+                        errorElement.textContent = `${input.id} is required`;
+                        errorElement.classList.remove("hide");
+                        validationStatus = false;
+                    }
+                }
+            });
+        return validationStatus;
+    }
+
+    function toQueryString(obj) {
+        return Object.keys(obj).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`).join('&');
+    }
+
+    summitButton.onclick = function () {
+        if (validateInputs()) {
+            const queries = {
+                deviceId: deviceId.value,
+                deviceName: deviceName.value,
+                deviceType: deviceType.value,
+                clientToken: clientToken.value,
+                ssid: ssid.value,
+                password: password.value,
+                host: host.value,
+                secure: secure.checked,
+                port: port.value,
+                url: url.value
+            };
+            fetch(`/?${toQueryString(queries)}`, {method: 'post'})
+                .then(() => console.log("Device configurated"))
+                .catch(e => console.error(e));
+        }
+    };
+
+    secure.onchange = function () {
         if (secure.checked) {
             port.value = "443";
         } else {
@@ -87,10 +293,12 @@
             ele.value = "";
             if (isCheckbox) {
                 ele.checked = true;
+                ele.onchange();
             }
         } else if (isCheckbox) {
             ele.checked = ele.value === 'true';
             ele.value = "";
+            ele.onchange();
         }
     }
 
@@ -106,9 +314,15 @@
         removeDefaultValue(port);
         removeDefaultValue(url);
 
-        if (port.value === "") {
-            secure.onclick();
+        document.querySelectorAll("input.required").forEach(input => {
+            input.addEventListener('keyup', () => validateInputs(input.id))
+            input.addEventListener('blur', () => validateInputs(input.id))
+        });
+
+        if (possibleSSIDs.length === 1 && possibleSSIDs[0] === "$$SSID_OPTIONS$$") {
+            possibleSSIDs.shift();
         }
+        populateSSIDOptions();
     })();
 </script>
 </html>
